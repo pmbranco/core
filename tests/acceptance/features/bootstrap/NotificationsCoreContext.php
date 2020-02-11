@@ -98,7 +98,9 @@ class NotificationsCoreContext implements Context {
 		Assert::assertCount(
 			(int) $numNotifications,
 			$notifications,
-			"Expected notifications count to have {$numNotifications} entries but got '{$notifications}' entries"
+			"Expected notifications count to have "
+		. (int) $numNotifications
+		. " entries but got '{$notifications}' entries"
 		);
 
 		$notificationIds = [];
