@@ -99,8 +99,8 @@ class NotificationsCoreContext implements Context {
 			(int) $numNotifications,
 			$notifications,
 			"Expected notifications count to have "
-		. (int) $numNotifications
-		. " entries but got '{$notifications}' entries"
+			. (int) $numNotifications
+			. " entries but got {$notifications} entries"
 		);
 
 		$notificationIds = [];
