@@ -96,7 +96,9 @@ class NotificationsCoreContext implements Context {
 			$this->featureContext->getResponse()
 		);
 		Assert::assertCount(
-			(int) $numNotifications, $notifications
+			(int) $numNotifications,
+			$notifications,
+			"Expected notifications count to have {$numNotifications} entries but got '{$notifications}' entries"
 		);
 
 		$notificationIds = [];
@@ -121,12 +123,19 @@ class NotificationsCoreContext implements Context {
 			$user, 'GET', '/apps/notifications/api/v1/notifications?format=json'
 		);
 		Assert::assertEquals(
-			200, $this->featureContext->getResponse()->getStatusCode()
+			200,
+			$this->featureContext->getResponse()->getStatusCode(),
+			"Expected status code to be '200' but got '"
+			. $this->featureContext->getResponse()->getStatusCode()
+			. "'"
 		);
 
 		$previousNotificationIds = [];
 		if ($missingLast) {
-			Assert::assertNotEmpty($this->getNotificationIds());
+			Assert::assertNotEmpty(
+				$this->getNotificationIds(),
+				"The notifications is empty missing the last one, but was not expected to be empty"
+			);
 			$previousNotificationIds = $this->getLastNotificationIds();
 		}
 
@@ -140,7 +149,10 @@ class NotificationsCoreContext implements Context {
 				$now[] = $this->getDeletedNotification();
 			}
 
-			Assert::assertEquals($previousNotificationIds, $now);
+			Assert::assertEquals(
+				$previousNotificationIds,
+				$now
+			);
 		}
 	}
 
@@ -202,7 +214,11 @@ class NotificationsCoreContext implements Context {
 			"/apps/notifications/api/v1/notifications/$notificationId?format=json"
 		);
 		Assert::assertEquals(
-			200, $this->featureContext->getResponse()->getStatusCode()
+			200,
+			$this->featureContext->getResponse()->getStatusCode(),
+			"Expected status code to be '200', but got '"
+			. $this->featureContext->getResponse()->getStatusCode()
+			. "'"
 		);
 		$response = \json_decode(
 			$this->featureContext->getResponse()->getBody()->getContents(), true
@@ -211,7 +227,9 @@ class NotificationsCoreContext implements Context {
 		$this->featureContext->verifyTableNodeColumns($formData, ['key', 'regex']);
 		foreach ($formData->getHash() as $notification) {
 			Assert::assertArrayHasKey(
-				$notification['key'], $response['ocs']['data']
+				$notification['key'],
+				$response['ocs']['data'],
+				"'{$response['ocs']['data']}' does not contain '{$notification['key']}' but was expected to"
 			);
 			if ($regex) {
 				$value = $this->featureContext->substituteInLineCodes(
@@ -224,7 +242,9 @@ class NotificationsCoreContext implements Context {
 			} else {
 				$value = $this->featureContext->substituteInLineCodes($notification['regex']);
 				Assert::assertEquals(
-					$value, $response['ocs']['data'][$notification['key']]
+					$value,
+					$response['ocs']['data'][$notification['key']],
+					"Expected {$value} but got {$response['ocs']['data'][$notification['key']]}"
 				);
 			}
 		}
@@ -256,9 +276,17 @@ class NotificationsCoreContext implements Context {
 			"DELETE",
 			'/apps/testing/api/v1/notifications'
 		);
-		Assert::assertEquals(200, $response->getStatusCode());
 		Assert::assertEquals(
-			200, (int) $this->ocsContext->getOCSResponseStatusCode($response)
+			200,
+			$response->getStatusCode(),
+			"Expected status code to be '200' but got {$response->getStatusCode()}"
+		);
+		Assert::assertEquals(
+			200,
+			(int) $this->ocsContext->getOCSResponseStatusCode($response),
+			"Expected status code to be '200' but got '"
+			. (int) $this->ocsContext->getOCSResponseStatusCode($response)
+			. "'"
 		);
 	}
 
