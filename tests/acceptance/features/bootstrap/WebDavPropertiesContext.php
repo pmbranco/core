@@ -104,6 +104,31 @@ class WebDavPropertiesContext implements Context {
 	}
 
 	/**
+	 * @Given /^user "([^"]*)" has set following properties of (?:file|folder|entry) "([^"]*)" using WebDav API$/
+	 *
+	 * @param string $username
+	 * @param string $path
+	 * @param TableNode|null $propertiesTable
+	 *
+	 * @return void
+	 * @throws Exception
+	 */
+	public function userHasSetFollowingPropertiesUsingProppatch($username, $path, $propertiesTable) {
+		$this->featureContext->verifyTableNodeColumns($propertiesTable, ['property', 'value']);
+		$properties = $propertiesTable->getColumnsHash();
+		$this->featureContext->setResponse(
+			WebDavHelper::proppatchWithMultipleProps(
+				$this->featureContext->getBaseUrl(),
+				$username,
+				$this->featureContext->getPasswordForUser($username),
+				$path,
+				$properties
+			)
+		);
+		$this->featureContext->theHTTPStatusCodeShouldBeSuccess();
+	}
+
+	/**
 	 * @When user :user gets a custom property :propertyName with namespace :namespace of file :path
 	 *
 	 * @param string $user
@@ -127,6 +152,38 @@ class WebDavPropertiesContext implements Context {
 				$this->featureContext->getUserPassword($user), $path,
 				$properties
 			)
+		);
+	}
+
+	/**
+	 * @When user :username gets following properties of file/folder :path using WebDav API
+	 *
+	 * @param string $username
+	 * @param string $path
+	 * @param TableNode $propertiesTable
+	 *
+	 * @return void
+	 * @throws Exception
+	 */
+	public function userGetsFollowingPropsWithNamespaceOfFileUsingWebDavAPI(
+		$username, $path, $propertiesTable
+	) {
+		$this->featureContext->verifyTableNodeColumns($propertiesTable, ["property",]);
+		$properties = [];
+		foreach ($propertiesTable->getColumnsHash() as $col) {
+			\array_push($properties, $col["property"]);
+		}
+		$this->featureContext->setResponse(
+			WebDavHelper::propfindWithMultipleProps(
+				$this->featureContext->getBaseUrl(),
+				$username,
+				$this->featureContext->getPasswordForUser($username),
+				$path,
+				$properties
+			)
+		);
+		$this->featureContext->setResponseXmlObject(
+			HttpRequestHelper::getResponseXml($this->featureContext->getResponse())
 		);
 	}
 
@@ -570,6 +627,40 @@ class WebDavPropertiesContext implements Context {
 		if (!$this->featureContext->isEtagValid()) {
 			throw new \Exception(
 				"getetag not found in response"
+			);
+		}
+	}
+
+	/**
+	 * @Then as user :username the last response should have following properties
+	 *
+	 * @param string $username
+	 * @param TableNode $expectedPropTable
+	 *
+	 * @return void
+	 * @throws Exception
+	 *
+	 */
+	public function theResponseShouldHavePropertyWithValue($username, $expectedPropTable) {
+		$this->featureContext->verifyTableNodeColumns($expectedPropTable, ['resource', 'property', 'value']);
+		$responseXmlObject = $this->featureContext->getResponseXmlObject();
+		$xmlHref = "/core/remote.php/dav/files/" . $username;
+		foreach ($expectedPropTable->getColumnsHash() as $col) {
+			if ($col["property"] === "status") {
+				$xmlPart = $responseXmlObject->xpath(
+					"//d:href[.='" .
+					$xmlHref . $col["resource"] .
+					"']/following-sibling::d:propstat//d:" .
+					$col["property"]
+				);
+			} else {
+				$xmlPart = $responseXmlObject->xpath(
+					"//d:href[contains(., '" . $col["resource"] . "')]/..//oc:" . $col["property"]
+				);
+			}
+			Assert::assertEquals(
+				$col["value"],
+				$xmlPart[0]
 			);
 		}
 	}
