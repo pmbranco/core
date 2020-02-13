@@ -644,7 +644,14 @@ class WebDavPropertiesContext implements Context {
 	public function theResponseShouldHavePropertyWithValue($username, $expectedPropTable) {
 		$this->featureContext->verifyTableNodeColumns($expectedPropTable, ['resource', 'property', 'value']);
 		$responseXmlObject = $this->featureContext->getResponseXmlObject();
-		$xmlHref = "/core/remote.php/dav/files/" . $username;
+
+		$hrefSplittedUptoUsername = \explode("/", $responseXmlObject->xpath("//d:href")[0]);
+		$xmlHrefSplittedArray = \array_slice(
+			$hrefSplittedUptoUsername,
+			0,
+			\array_search($username, $hrefSplittedUptoUsername) + 1
+		);
+		$xmlHref = \implode("/", $xmlHrefSplittedArray);
 		foreach ($expectedPropTable->getColumnsHash() as $col) {
 			if ($col["property"] === "status") {
 				$xmlPart = $responseXmlObject->xpath(
@@ -655,7 +662,9 @@ class WebDavPropertiesContext implements Context {
 				);
 			} else {
 				$xmlPart = $responseXmlObject->xpath(
-					"//d:href[contains(., '" . $col["resource"] . "')]/..//oc:" . $col["property"]
+					"//d:href[.= '" .
+					$xmlHref . $col["resource"] .
+					"']/..//oc:" . $col["property"]
 				);
 			}
 			Assert::assertEquals(

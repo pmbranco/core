@@ -248,7 +248,7 @@ class WebDavHelper {
 			//default namespace prefix if the property has no array key
 			//also used if no prefix is given in the property value
 			$namespacePrefix = "d";
-			$namespace = "http://owncloud.org/ns";
+			$namespace = "DAV:";
 		} elseif ($namespaceString) {
 			//calculate the namespace prefix and namespace from the array key
 			$matches = [];
