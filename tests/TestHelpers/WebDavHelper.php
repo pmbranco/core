@@ -241,7 +241,7 @@ class WebDavHelper {
 	 *
 	 * @return array
 	 */
-	public static function getPropertyWithNamespaceInfo($namespaceString="", $property="") {
+	public static function getPropertyWithNamespaceInfo($namespaceString = "", $property = "") {
 		$namespace = "";
 		$namespacePrefix = "";
 		if (\is_int($namespaceString)) {

@@ -104,7 +104,7 @@ class WebDavPropertiesContext implements Context {
 	}
 
 	/**
-	 * @Given /^user "([^"]*)" has set following properties of (?:file|folder|entry) "([^"]*)" using WebDav API$/
+	 * @Given /^user "([^"]*)" has set the following properties of (?:file|folder|entry) "([^"]*)" using the WebDav API$/
 	 *
 	 * @param string $username
 	 * @param string $path
@@ -156,7 +156,7 @@ class WebDavPropertiesContext implements Context {
 	}
 
 	/**
-	 * @When user :username gets following properties of file/folder :path using WebDav API
+	 * @When user :username gets the following properties of file/folder :path using the WebDav API
 	 *
 	 * @param string $username
 	 * @param string $path
@@ -632,7 +632,7 @@ class WebDavPropertiesContext implements Context {
 	}
 
 	/**
-	 * @Then as user :username the last response should have following properties
+	 * @Then as user :username the last response should have the following properties
 	 *
 	 * @param string $username
 	 * @param TableNode $expectedPropTable
